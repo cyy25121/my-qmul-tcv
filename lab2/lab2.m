@@ -5,7 +5,7 @@
 addpath software;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Loading of the images: You need to replace the directory 
+%% Loading of the images: You need to replace the directory
 Imagestrain = loadImagesInDirectory ( 'dataset/training-set/23x28/');
 [Imagestest, Identity] = loadTestImagesInDirectory ( 'dataset/testing-set/23x28/');
 
@@ -30,7 +30,7 @@ Eigenvalues = diag(S);
 MeanImage = uint8 (zeros(28, 23));
 for k = 0:643
    MeanImage( mod (k,28)+1, floor(k/28)+1 ) = Means (1,k+1);
- 
+
 end
 figure;
 subplot (1, 1, 1);
@@ -59,20 +59,20 @@ TestSizes = size(Locationstest);
 Distances=zeros(TestSizes(1),TrainSizes(1));
 %Distances contains for each test image, the distance to every train image.
 
-for k=1:TestSizes(1),
+for i=1:TestSizes(1),
     for j=1: TrainSizes(1),
         Sum=0;
         for k=1: Threshold,
-   Sum=Sum+((Locationstrain(j,k)-Locationstest(k,k)).^2);
+   Sum=Sum+((Locationstrain(j,k)-Locationstest(i,k)).^2);
         end,
-     Distances(k,j)=Sum;
+     Distances(i,j)=Sum;
     end,
 end,
 
 Values=zeros(TestSizes(1),TrainSizes(1));
 Indices=zeros(TestSizes(1),TrainSizes(1));
-for k=1:70,
-[Values(k,:), Indices(k,:)] = sort(Distances(k,:));
+for i=1:70,
+[Values(i,:), Indices(i,:)] = sort(Distances(i,:));
 end,
 
 
@@ -81,22 +81,22 @@ end,
 figure;
 x=6;
 y=2;
-for k=1:6,
+for i=1:6,
       Image = uint8 (zeros(28, 23));
       for k = 0:643
-     Image( mod (k,28)+1, floor(k/28)+1 ) = Imagestest (k,k+1);
+     Image( mod (k,28)+1, floor(k/28)+1 ) = Imagestest (i,k+1);
       end,
-   subplot (x,y,2*k-1);
+   subplot (x,y,2*i-1);
     imshow (Image);
     title('Image tested');
-    
+
     Imagerec = uint8 (zeros(28, 23));
       for k = 0:643
-     Imagerec( mod (k,28)+1, floor(k/28)+1 ) = Imagestrain ((Indices(k,1)),k+1);
+     Imagerec( mod (k,28)+1, floor(k/28)+1 ) = Imagestrain ((Indices(i,1)),k+1);
       end,
-     subplot (x,y,2*k);
+     subplot (x,y,2*i);
 imshow (Imagerec);
-title(['Image recognised with ', num2str(Threshold), ' eigenfaces:',num2str((Indices(k,1))) ]);
+title(['Image recognised with ', num2str(Threshold), ' eigenfaces:',num2str((Indices(i,1))) ]);
 end,
 
 
@@ -104,7 +104,7 @@ end,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% recognition rate compared to the number of test images: Write your code here to compute the recognition rate using top 20 eigenfaces.
 
-number_of_test_images=zeros(1,40);  
+number_of_test_images=zeros(1,40);
 number_of_reg_test_images=zeros(1,40);
 recognitionrate=zeros(1,40);
 for k=1:70
@@ -129,11 +129,12 @@ end
 
 recognitionrate_all=sum(number_of_reg_test_images)/sum(number_of_test_images);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-%% effect of threshold (i.e. number of eigenfaces):   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% effect of threshold (i.e. number of eigenfaces):
 averageRR=zeros(1,20);
 for t=1:20,
-  Threshold =t;  
+
+  Threshold =t;
 Distances=zeros(TestSizes(1),TrainSizes(1));
 
 for k=1:TestSizes(1),
@@ -161,24 +162,24 @@ number_per_number=zeros(1,5);
 
 k=1;
 while (k<70),
-    id=Identity(1,k);   
+    id=Identity(1,k);
     distmin=Values(id,1);
         indicemin=Indices(id,1);
-    while (k<70)&&(Identity(1,k)==id), 
+    while (k<70)&&(Identity(1,k)==id),
         if (Values(k,1)<distmin),
             distmin=Values(k,1);
         indicemin=Indices(k,1);
         end,
         k=k+1;
-    
+
     end,
     recognised_person(1,id)=indicemin;
     number_per_number(number_of_test_images(1,id))=number_per_number(number_of_test_images(1,id))+1;
     if (id==floor((indicemin-1)/5)+1) %the good personn was recognised
         recognitionrate(number_of_test_images(1,id))=recognitionrate(number_of_test_images(1,id))+1;
-        
+
     end,
-   
+
 
 end,
 
@@ -203,4 +204,3 @@ for k=1:40
     recognitionrate(k)=sum(yPredict' == Identity) / numel(Identity);
 end
 plot(recognitionrate(1,:));
-

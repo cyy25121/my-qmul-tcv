@@ -65,7 +65,7 @@ end
 save('data/global/all_features','TrainMat','TestMat');
 %}
 %-----------------------code to load pre-computed features-----------------
-%{
+%%
 load('data/global/all_features');
 %}
 %------------------------end of code---------------------------------------
@@ -76,7 +76,7 @@ load('data/global/all_features');
 %if you wanna see the detail of how the dictionary is created, please refer
 %to CalculateDictionary.m which runs step by step. 
 %--------------------------code--------------------------------------------
-%{
+%% 
 clear 
 load('data/global/all_features');
 DictionarySize = 500;
@@ -91,8 +91,6 @@ save('data/global/dictionary','C');
 
 %% 2.3 Euclidean distance 
 % Assume a and b are two vectors, the  Euclidean distance function is EuclideanDistance.m 
-%--------------------------------------code--------------------------------
-%{
 clear;
 load('data/global/all_features');
 load('data/global/dictionary');
@@ -103,8 +101,6 @@ d = EuclideanDistance(a,b);
 %----------------------------------end of code ----------------------------
 
 %% 2.4 Assign each descriptor to the nearest codeword 
-
-%{
 clear;
 load('data/global/all_features');
 load('data/global/dictionary');
@@ -115,10 +111,12 @@ d = EuclideanDistance(discrptor_test1,C);
 [minv,index] = min(d);% index will be the nearest codeword cluster 
 
 %-----------------------------Write Your Own Code here that assigns all descriptors -------------
-%-----------------------------Write Your Own Code here that assigns all descriptors -------------
-%-----------------------------Write Your Own Code here that assigns all descriptors -------------
+d = EuclideanDistance(TrainMat, C);
+[~, index_train] = min(d');
 
-
+d = EuclideanDistance(TestMat, C);
+[~, index_test] = min(d');
+%-----------------------------Write Your Own Code here that assigns all descriptors -------------
 
 save('data/global/assignd_discriptor','index_train','index_test');
 %}
@@ -126,10 +124,10 @@ save('data/global/assignd_discriptor','index_train','index_test');
 
 %% 2.5 Visualize some image patches that are assigned to the same codeword 
 %------------------------code------------------------------------------
-%{
+%{%
 clear;
 load('data/global/assignd_iscriptor');
-wordid =78; %397; %37;% set a random value and we intead to find 20 patches from both training and test
+wordid =1; %397; %37;% set a random value and we intead to find 20 patches from both training and test
 n = 30;% number of patches
 close all;
 visualize_patches(index_train,index_test,wordid,n);
@@ -140,7 +138,7 @@ clear;
 %==========================================================================
 %% Step 3 Image representation using bag of words 
 %% 3.1 represent each image using BoW 
-%{
+%{%
 clear;
 BoW =[]; %initialization 
 isshow = 0; % show image and histogram or not
@@ -156,7 +154,10 @@ for ii = 1:nimages
       
       %------------------------ write your own code here------------------------------------------
       %------------------------ write your own code here------------------------------------------
+      d = EuclideanDistance(features.data, C);
+      [~, index] = min(d);
       
+      BoW(ii, :) = do_normalize(index);
       
       if isshow == 1
         close all; figure;
@@ -186,7 +187,7 @@ train_data = BoW(1:300,:);
 test_data  = BoW(301:400,:);
 clear BoW;
 k = 1;% set the k for k-nn algorithm 
-method = 1;% 1-L2; 2- Histogram intersection 
+method = 2;% 1-L2; 2- Histogram intersection 
 NNresult = knnsearch(test_data,train_data,k,method);
 
 if k >1 
@@ -198,6 +199,7 @@ predict_label = train_labels(NNresult);
 %% 4.2 classification error
 %----------------------------------code------------------------------------
 %{%
+% 100 test images in totoal
 num_c = 5;
 num_pc = 20;
 error_n = zeros(num_c,1);
@@ -299,20 +301,20 @@ test_labels   = [tem;2*tem;3*tem;4*tem;5*tem];
 test_data     = BoW(301:400,:);
 clear BoW;
 % set the parameters via cross-validation! Elapsed time is 246.922774 seconds.
-bestc=64;bestg=2.2974;
-bestcv=0;
-% tic 
-% for log2c = -1:10,
-%   for log2g = -1:0.1:1.5,
-%     cmd = ['-v 5 -t 2 -c ', num2str(2^log2c), ' -g ', num2str(2^log2g)];
-%     cv = svmtrain(train_labels, train_data, cmd);
-%     if (cv >= bestcv),
-%       bestcv = cv; bestc = 2^log2c; bestg = 2^log2g;
-%     end
-%     fprintf('%g %g %g (best c=%g, g=%g, rate=%g)\n', log2c, log2g, cv, bestc, bestg, bestcv);
-%   end
-% end
-% toc 
+bestc=16;bestg=2.46229;
+bestcv=34.6667;
+tic
+for log2c = -1:10,
+  for log2g = -1:0.1:1.5,
+    cmd = ['-v 5 -t 2 -c ', num2str(2^log2c), ' -g ', num2str(2^log2g)];
+    cv = svmtrain(train_labels, train_data, cmd);
+    if (cv >= bestcv),
+      bestcv = cv; bestc = 2^log2c; bestg = 2^log2g;
+    end
+    fprintf('%g %g %g (best c=%g, g=%g, rate=%g)\n', log2c, log2g, cv, bestc, bestg, bestcv);
+  end
+end
+toc
 options=sprintf('-s 0 -t 2 -c %f -b 1 -g %f -q',bestc,bestg);
 model=svmtrain(train_labels, train_data,options);
 %}
