@@ -1,4 +1,4 @@
-function Lab4()
+%function Lab4()
 %------------------------------------------------------------LAB2-------------------------------------------------------------
 % Implicit Shape Model for action detection (for static actions => the bounding box is stationary)
 % This is for masters computer vision course 
@@ -51,3 +51,5 @@ train_ism();
 test_ism();    % Testing ism
 
 recall_prec_curve();        % Generating recall-precision curves
+
+evalcf();

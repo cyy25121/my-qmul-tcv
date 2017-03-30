@@ -5,10 +5,10 @@ function calling_ism(THRESH, class, dir_nam, K)
 % dir_nam : Name of the directory
 % K:    Dictionary/codebook size
   path = cd;
-  path = [path,'/data/',dir_nam];
+  path = [path,'/dataset/',dir_nam];
   aa = path;
   system(['mkdir',' ',aa,'/']);
-  load(sprintf('data/struct_class%d',class));
+  load(sprintf('dataset/struct_class%d',class));
 
   [Dictionary,DataStructureVotemap] = ism(DataStructure, K, THRESH);
 

@@ -5,15 +5,15 @@ TEM_MEANSHIFT_WIDTH = 0.20; % Meanshift kernel width. This is a parameter that c
                            % you can decrease this value to increase the number of generated hypothesis
 a = 1.8; b = 3;            % a and b are the lower and upper limit for the selection of the threshold (for the distance between the codeword and the discriptor)
                            % you can change the value 1.8 <= a <= 2.4 to change the number of descriptors matched to the codeword
-fea_path = 'test_fea/';    % test feature path
+fea_path = 'dataset/test_fea/';    % test feature path
 NO_OF_POINTS = 1;          % threshold for the number points in a hypothesis (To reject the hypothesis with no.of points < NO_OF_POINTS)
 LOW_THRESH = 0;            % threshold for the confidence of a hypothesis (To reject the hypothesis with confidence < LOW_THRESH)
 
 
 for i = 1:3
-    load(sprintf('data/class%d/Dictionary',i));
+    load(sprintf('dataset/class%d/Dictionary',i));
     struct_Dictionary_array.array(i).Dictionary = Dictionary;      
-    load(sprintf('data/class%d/DataStructureVotemap',i));
+    load(sprintf('dataset/class%d/DataStructureVotemap',i));
     DataStructureVotemap_array.array(i).DataStructureVotemap = DataStructureVotemap;
     clear DataStructureVotemap Dictionary
 end
@@ -21,7 +21,7 @@ end
 
 for i = 1:3             % Test each class
     fprintf('\nTesting class %d',i);
-    load(sprintf('data/test_class%d',i));  %Example: test_class1 contains the index of the features used for class 1
+    load(sprintf('dataset/test_class%d',i));  %Example: test_class1 contains the index of the features used for class 1
     sz_test_array = size(test_class,2);
     for j = 1:sz_test_array    
         fprintf('.');
@@ -31,7 +31,7 @@ for i = 1:3             % Test each class
         for k = 1:3        %  Compare the descriptors with dictionaries from all the and choose the one with the maximum response
             Dictionary = struct_Dictionary_array.array(k).Dictionary;
             DataStructureVotemap = DataStructureVotemap_array.array(k).DataStructureVotemap;
-            TP_FP_mat = ism_test_voting(struct_fea,THRESH,0,TEM_MEANSHIFT_WIDTH, LOW_THRESH,NO_OF_POINTS,DataStructureVotemap,Dictionary,a,b);
+            TP_FP_mat = ism_test_voting(struct_fea,THRESH,1,TEM_MEANSHIFT_WIDTH, LOW_THRESH,NO_OF_POINTS,DataStructureVotemap,Dictionary,a,b);
             % TP_FP_mat is a matrix with dimensions equal to 2 x number of hypotheses. 
             % The first row TP_FP_mat(1, :) is the overlap with the ground truth 
             % The second row TP_FP_mat(2, :) is the number of votes for the hypotheses.

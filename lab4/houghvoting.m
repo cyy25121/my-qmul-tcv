@@ -17,3 +17,26 @@ function hough_array = houghvoting(patches,position,spa_scale,tem_scale,frame_nu
 % Write your code here to compute the matrix hough_array
 %-----------------------------------------------------------------------------------------------------
   
+cb_size = size(flag_mat, 1);
+[th_x, th_y, th_s, th_e, v, b1, b2] = deal([]);
+for i=1:cb_size
+    is_act_cw = sum(flag_mat(i,:));
+    if is_act_cw ~= 0
+        act_cw_s = position(:, flag_mat(i,:));
+        act_cw_t = frame_num(:, flag_mat(i,:));
+        num_ed = struct_cb.offset(i).tot_cnt;
+        vs = [];
+        for j=1:num_ed
+            th_x = [th_x act_cw_s(1,:) - spa_scale(1, flag_mat(i,:))  * struct_cb.offset(i).spa_offset(1, j)];
+            th_y = [th_y act_cw_s(2,:) - spa_scale(1, flag_mat(i,:))  * struct_cb.offset(i).spa_offset(2, j)];       
+            th_s = [th_s act_cw_t - tem_scale(1, flag_mat(i,:))  * struct_cb.offset(i).st_end_offset(1, j)];
+            th_e = [th_e act_cw_t - tem_scale(1, flag_mat(i,:))  * struct_cb.offset(i).st_end_offset(2, j)];
+            vs = [vs repmat(1/(num_ed), is_act_cw, 1)'];
+            b1 = [b1 struct_cb.offset(i).hei_wid_bb(1, j) * spa_scale(1, flag_mat(i,:)) ];
+            b2 = [b2 struct_cb.offset(i).hei_wid_bb(2, j) * spa_scale(1, flag_mat(i,:)) ];
+        
+        end
+        v = [v vs];
+    end
+end
+hough_array = [th_x; th_y; th_s; th_e; v; b1; b2];

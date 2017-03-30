@@ -37,6 +37,8 @@ eucl_mat = compute_dist(patches',Dictionary');  % VIJAY Remove this line
 % The output matrix eucl_mat should have dimensions Dsize x NoSTIPs where Dsize is the dictionary size
 % and NoSTIPs is the number of STIPs in the test sequence
 
+
+
 %----------------------------------------------------------------------------------------------
 
 
@@ -127,3 +129,7 @@ for i = 1:count_tot
     TP = verification(gt_struct_spa_tem,struct_spa_tem,i);
     TP_FP_mat(:,i) = [TP;struct_spa_tem.array_val(:,i)];
 end
+
+function D = compute_dist(b,a)
+aa=sum(a.*a,2); bb=sum(b.*b,2); ab=a*b'; 
+D = sqrt(abs(repmat(aa,[1 size(bb,1)]) + repmat(bb',[size(aa,1) 1]) - 2*ab));
